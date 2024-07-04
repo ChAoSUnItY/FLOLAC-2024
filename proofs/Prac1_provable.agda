@@ -52,14 +52,13 @@ sum-concat-++ [] = begin
   ≡⟨⟩
     (sum ∘ (map sum)) []
   ∎
-sum-concat-++ (x ∷ xs) = {!
-  begin
+sum-concat-++ (x ∷ xs) = begin
     (sum ∘ concat) (x ∷ xs)
   ≡⟨⟩
     sum (concat (x ∷ xs))
   ≡⟨⟩
     sum (x ++ concat xs)
-  ≡⟨ sym (sum-++-commute x (concat xs)) ⟩
+  ≡⟨ sum-++-commute x (concat xs) ⟩
     sum x + sum (concat xs)
   ≡⟨ cong (sum x +_) (sum-concat-++ xs) ⟩
     sum x + sum (map sum xs)
@@ -70,4 +69,3 @@ sum-concat-++ (x ∷ xs) = {!
   ≡⟨⟩
     (sum ∘ (map sum)) (x ∷ xs)
   ∎
-!}
