@@ -26,6 +26,11 @@ source-repository head
 library
   exposed-modules:
       Prac1
+      Prac2.EvalLet00
+      Prac2.EvalLet01
+      Prac2.Except
+      Prac2.MiniPrelude
+      Prac2.Rand00
   other-modules:
       Paths_flolac
   autogen-modules:
