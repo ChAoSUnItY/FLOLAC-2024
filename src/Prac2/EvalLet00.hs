@@ -8,13 +8,15 @@ type Name = String
 
 type Env = Name -> Maybe Int
 
+List A = Null | Cons A List A
+
 empty :: Env
 empty = \_ -> Nothing
 
 extend :: (Name, Int) -> Env -> Env
 extend (entryName, entryVal) env = 
-  \name -> 
-    if name == entryName then return entryVal 
+  \name ->
+    if name == entryName then return entryVal
                          else env name
 
 -- What if we define

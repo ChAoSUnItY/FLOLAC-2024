@@ -158,6 +158,89 @@ fan : {A : Set} → A → List A → List (List A)
 fan a [] = []
 fan a xs = fan′ (length xs) a xs
 
--- Q7
+-- From solution sheet
+fanᵝ : {A : Set} → A → List A → List (List A)
+fanᵝ a [] = (a ∷ []) ∷ []
+fanᵝ a (x ∷ xs) = (a ∷ x ∷ xs) ∷ map (_∷_ x) (fan a xs)
 
- 
+-- Q7
+map-fusion : ∀ {A B C : Set} (g : A → B) (f : B → C) (xs : List A) → (map f ∘ map g) xs ≡ map (f ∘ g) xs
+map-fusion g f [] = 
+  begin
+    (map f ∘ map g) [] 
+  ≡⟨⟩
+    map f (map g [])
+  ≡⟨⟩
+    map f []
+  ≡⟨⟩
+    []
+  ≡⟨⟩
+    map (f ∘ g) []
+  ∎
+map-fusion g f (x ∷ xs) = begin
+    (map f ∘ map g) (x ∷ xs)
+  ≡⟨⟩
+    map f (map g (x ∷ xs))
+  ≡⟨⟩
+    map f (g x ∷ (map g xs))
+  ≡⟨⟩
+    f (g x) ∷ map f (map g xs)
+  ≡⟨ cong (f (g x) ∷_) (map-fusion g f xs) ⟩
+    f (g x) ∷ map (f ∘ g) xs
+  ≡⟨⟩
+    ((f ∘ g) x) ∷ map (f ∘ g) xs
+  ≡⟨⟩
+    map (f ∘ g) (x ∷ xs)
+  ∎
+
+
+
+map-fusion² : ∀ {A B C : Set} (g : A → B) (f : B → C) (xs : List A) → (map f) (map g xs) ≡ map (f ∘ g) xs
+map-fusion² g f [] = refl
+map-fusion² g f (x ∷ xs) = begin
+    (map f) (map g (x ∷ xs))
+  ≡⟨⟩
+    map f (g x ∷ map g xs)
+  ≡⟨⟩
+    f (g x) ∷ (map f (map g xs))
+  ≡⟨ cong (f (g x) ∷_) (map-fusion² g f xs) ⟩
+    f (g x) ∷ (map (f ∘ g) xs)
+  ≡⟨⟩
+    (f ∘ g) x ∷ (map (f ∘ g) xs)
+  ≡⟨⟩
+    map (f ∘ g) (x ∷ xs)
+  ∎
+
+map-fan : ∀ {A B : Set} (f : A → B) (x : A) (xs : List A) → map (map f) (fanᵝ x xs) ≡ fanᵝ (f x) (map f xs)
+map-fan f x [] = 
+  begin
+    map (map f) (fanᵝ x [])
+  ≡⟨⟩
+    map (map f) ((x ∷ []) ∷ [])
+  ≡⟨⟩
+    ((f x ∷ []) ∷ [])
+  ≡⟨⟩
+    fanᵝ (f x) []
+  ≡⟨⟩
+    fanᵝ (f x) (map f [])
+  ∎
+map-fan f x (y ∷ ys) = 
+  begin
+    map (map f) (fanᵝ x (y ∷ ys))
+  ≡⟨ map (map f) (fanᵝ x (y ∷ ys)) ⟩
+    map (map f) ((x ∷ y ∷ ys) ∷ map (_∷_ y) (fanᵝ x ys))
+  ≡⟨⟩
+    map f (x ∷ y ∷ ys) ∷ map (map f) (map (_∷_ y) (fanᵝ x ys))
+  ≡⟨ map-fusion² (_∷_ y) f (fanᵝ x ys) ⟩
+    map f (x ∷ y ∷ ys) ∷ map (map (f ∘ (_∷_ y))) (fanᵝ x ys)
+  ≡⟨⟩
+    map f (x ∷ y ∷ ys) ∷ map ((_∷_ y) ∘ map f (fanᵝ x ys))
+  ≡⟨⟩
+    map f (x ∷ y ∷ ys) ∷ map (_∷_ y) (map (map f) (fanᵝ x ys))
+  ≡⟨ cong map f (x ∷ y ∷ ys) ∷ map (_∷_ y) (map-fan f x ys) ⟩
+    map f (x ∷ y ∷ ys) ∷ map (_∷_ y) (fan (f x) (map f ys))
+  ≡⟨⟩
+    (f x ∷ f y ∷ map f ys) ∷ map (_∷_ y) (fan (f x) (map f ys))
+  ≡⟨⟩
+    fan (f x) (f y ∷ map f ys)
+  ∎
